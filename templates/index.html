@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChromaCrypt: Image Encryption & Decryption</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 50px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        .navbar .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+        }
+
+        .navbar .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .navbar .nav-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .navbar .nav-links a:hover {
+            color: #ff512f;
+        }
+
+        .landing-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            margin-top: 70px;
+        }
+
+        .landing-page h1 {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            text-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .landing-page p {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            max-width: 600px;
+        }
+
+        .start-btn {
+            background: linear-gradient(45deg, #ff512f, #dd2476);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .content-wrapper {
+            width: 100%;
+            max-width: 450px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .nav-button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 12px 24px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .nav-button.active {
+            background: linear-gradient(45deg, #ff512f, #dd2476);
+        }
+
+        .form-section {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            text-align: center;
+            width: 100%;
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        input[type="file"], input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            box-sizing: border-box;
+            outline: none;
+            font-size: 14px;
+        }
+
+        button[type="submit"] {
+            background: linear-gradient(45deg, #ff512f, #dd2476);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+
+        button[type="submit"]:hover {
+            transform: scale(1.05);
+        }
+
+        .section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 50px 20px;
+            margin: 20px 0;
+        }
+
+        .about-content, .contact-content {
+            width: 100%;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .contact-form {
+            display: flex;
+            flex-direction: column;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .contact-form input,
+        .contact-form textarea {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .contact-form button {
+            background: linear-gradient(45deg, #ff512f, #dd2476);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .contact-form button:hover {
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 15px 20px;
+            }
+
+            .landing-page h1 {
+                font-size: 2.5rem;
+            }
+
+            .landing-page p {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="#" class="logo">ChromaCrypt</a>
+        <div class="nav-links">
+            <a href="#about">About</a>
+            <a href="#contact">Contact</a>
+        </div>
+    </nav>
+
+    <div class="landing-page" id="landing">
+        <h1>ChromaCrypt</h1>
+        <p>Secure your images with advanced encryption technology. Protect your visual data with just a click.</p>
+        <button class="start-btn" onclick="scrollToMainContent()">Start Here</button>
+    </div>
+
+    <div class="main-content" id="main-content">
+        <div class="content-wrapper">
+            <h1 style="text-align: center; margin-bottom: 30px;">🔒 Image Encryption & Decryption</h1>
+
+            <div class="nav-buttons">
+                <button class="nav-button active" data-section="encrypt">Encrypt</button>
+                <button class="nav-button" data-section="decrypt">Decrypt</button>
+                <button class="nav-button" data-section="gcs-decrypt">Decrypt from GCS</button>
+            </div>
+
+            <div id="encrypt" class="form-section active">
+                <h2>🔐 Encrypt Image</h2>
+                <form action="/encrypt" method="post" enctype="multipart/form-data" onsubmit="return validateEncryptForm()">
+                    <input type="file" name="file" id="encryptFile" accept="image/*" required>
+                    <input type="text" name="key" id="encryptKey" placeholder="Enter encryption key (32 characters)" required>
+                    <button type="submit">Encrypt & Upload</button>
+                </form>
+            </div>
+
+            <div id="decrypt" class="form-section">
+                <h2>🔓 Decrypt Image</h2>
+                <form action="/decrypt" method="post" enctype="multipart/form-data" onsubmit="return validateDecryptForm()">
+                    <input type="file" name="file" id="decryptFile" accept=".enc" required>
+                    <input type="text" name="key" id="decryptKey" placeholder="Enter decryption key (32 characters)" required>
+                    <button type="submit">Decrypt & Download</button>
+                </form>
+            </div>
+
+            <div id="gcs-decrypt" class="form-section">
+                <h2>🔗 Decrypt from GCS</h2>
+                <form action="/decrypt_from_gcs" method="post" onsubmit="return validateGCSForm()">
+                    <input type="text" name="gcs_url" id="gcsUrl" placeholder="Enter GCS URL" required>
+                    <input type="text" name="key" id="gcsKey" placeholder="Enter decryption key (32 characters)" required>
+                    <button type="submit">Decrypt from GCS</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="about" class="section">
+        <div class="about-content">
+            <h2>About the Encryption Algorithm</h2>
+<p>ChromaCrypt employs a <strong>multi-layer encryption methodology</strong> designed to provide <strong>maximum security</strong> for your images. By leveraging a <strong>double encryption approach</strong> combined with a <strong>cryptographic integrity check</strong>, we ensure <strong>confidentiality and tamper resistance</strong>.</p>
+
+<h3>Key Features of Our Encryption:</h3>
+<ul style="list-style-type: none; padding: 0; margin: 20px 0;">
+    <li>• <strong>Multi-Layer Encryption:</strong> Combines <strong>Salsa20</strong> and <strong>XChaCha20</strong> for enhanced security.</li>
+    <li>• <strong>256-bit Key Strength:</strong> Ensures <strong>strong encryption</strong> against brute-force attacks.</li>
+    <li>• <strong>Nonce-Based Encryption:</strong> Uses <strong>random nonces (8B + 24B)</strong> for cryptographic randomness.</li>
+    <li>• <strong>BLAKE2b Integrity Check:</strong> Verifies data integrity and detects tampering.</li>
+    <li>• <strong>Cloud Integration:</strong> Securely stores encrypted files and metadata.</li>
+</ul>
+
+<h3>Encryption Process:</h3>
+<p>Our algorithm follows a <strong>multi-step encryption pipeline</strong>:</p>
+<ol style="text-align: left; max-width: 500px; margin: 20px auto;">
+    <li><strong>Image Preprocessing:</strong> Reads the image and prepares data for encryption.</li>
+    <li><strong>Key Handling:</strong> User provides a <strong>32-byte encryption key</strong>.</li>
+    <li><strong>Salsa20 Encryption:</strong> The image is first encrypted using <strong>Salsa20</strong> with an <strong>8-byte nonce</strong>.</li>
+    <li><strong>XChaCha20 Encryption:</strong> The <strong>Salsa20-encrypted data</strong> undergoes a <strong>second encryption</strong> using <strong>XChaCha20</strong> with a <strong>24-byte nonce</strong>.</li>
+    <li><strong>BLAKE2b Authentication:</strong> A <strong>cryptographic MAC (Message Authentication Code)</strong> is generated to ensure data integrity.</li>
+    <li><strong>Cloud Storage:</strong> The encrypted image is uploaded to <strong>Google Cloud Storage</strong>, and its <strong>URL is stored in MongoDB</strong>.</li>
+</ol>
+
+<h3>Decryption Process:</h3>
+<p>Decryption follows the <strong>reverse order</strong>:</p>
+<ol style="text-align: left; max-width: 500px; margin: 20px auto;">
+    <li><strong>MAC Verification:</strong> The <strong>BLAKE2b hash</strong> ensures the data has not been tampered with.</li>
+    <li><strong>XChaCha20 Decryption:</strong> Removes the <strong>XChaCha20 layer</strong> using the <strong>24-byte nonce</strong>.</li>
+    <li><strong>Salsa20 Decryption:</strong> Recovers the <strong>original image</strong> using the <strong>8-byte nonce</strong>.</li>
+    <li><strong>Image Retrieval:</strong> The decrypted image is provided to the user.</li>
+</ol>
+
+<p>By utilizing <strong>double encryption and cryptographic integrity verification</strong>, ChromaCrypt ensures <strong>robust protection</strong> against unauthorized access and data breaches.</p>
+
+        </div>
+    </div>
+
+    <div id="contact" class="section">
+        <div class="contact-content">
+            <h2>Contact Us</h2>
+            <form class="contact-form" id="contactForm">
+                <input type="text" id="contactName" placeholder="Your Name" required>
+                <input type="email" id="contactEmail" placeholder="Your Email" required>
+                <textarea id="contactMessage" placeholder="Your Message" rows="5" required></textarea>
+                <button type="submit">Send Message</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Smooth scrolling to sections
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                const targetId = this.getAttribute('href').substring(1);
+                const targetSection = document.getElementById(targetId);
+
+                if (targetSection) {
+                    // Calculate the scroll position to center the section
+                    const windowHeight = window.innerHeight;
+                    const sectionHeight = targetSection.offsetHeight;
+                    const scrollToPosition = targetSection.offsetTop - (windowHeight - sectionHeight) / 2;
+
+                    window.scrollTo({
+                        top: scrollToPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        function scrollToMainContent() {
+            document.getElementById('main-content').scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+
+        // Navigation button handling
+        const navButtons = document.querySelectorAll('.nav-button');
+        const formSections = document.querySelectorAll('.form-section');
+
+        navButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons and sections
+                navButtons.forEach(btn => btn.classList.remove('active'));
+                formSections.forEach(section => section.classList.remove('active'));
+
+                // Add active class to clicked button and corresponding section
+                button.classList.add('active');
+                const sectionId = button.getAttribute('data-section');
+                document.getElementById(sectionId).classList.add('active');
+            });
+        });
+
+        function validateEncryptForm() {
+            return validateKey('encryptKey');
+        }
+
+        function validateDecryptForm() {
+            return validateKey('decryptKey');
+        }
+
+        function validateGCSForm() {
+            return validateKey('gcsKey');
+        }
+
+        function validateKey(id) {
+            const key = document.getElementById(id).value;
+            if (key.length !== 32) {
+                alert('Key must be exactly 32 characters!');
+                return false;
+            }
+            return true;
+        }
+
+        document.getElementById('encryptFile').addEventListener('change', function(e) {
+            if (!e.target.files[0].type.startsWith('image/')) {
+                alert('Please select an image file!');
+                e.target.value = '';
+            }
+        });
+
+        document.getElementById('decryptFile').addEventListener('change', function(e) {
+            if (!e.target.files[0].name.endsWith('.enc')) {
+                alert('Please select a .enc encrypted file!');
+                e.target.value = '';
+            }
+        });
+
+        // Email functionality
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('contactName').value;
+            const email = document.getElementById('contactEmail').value;
+            const message = document.getElementById('contactMessage').value;
+
+            // Basic email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+
+            // Compose email body
+            const subject = encodeURIComponent('Message from ChromaCrypt Contact Form');
+            const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
+
+            // Open default email client with your personal email
+            window.location.href = `mailto:kamisettisurya204@gmail.com?subject=${subject}&body=${body}`;
+
+            // Clear form
+            this.reset();
+            alert('Your message has been prepared. Please complete sending through your email client.');
+        });
+    </script>
+</body>
+</html>
