@@ -1,0 +1,6 @@
+Flask
+pymongo
+google-cloud-storage
+pycryptodome
+pynacl
+gunicorn
