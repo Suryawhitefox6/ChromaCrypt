@@ -102,6 +102,22 @@ def decrypt():
     decrypted_data = decrypt_image(encrypted_data, key, algorithm)
     return send_file(io.BytesIO(decrypted_data), mimetype='image/png', as_attachment=True,
                      download_name='decrypted_image.png')
+@app.route('/decrypt_from_gcs', methods=['POST'])
+def decrypt_from_gcs():
+    gcs_url = request.form['gcs_url']
+    key = request.form['key'].encode('utf-8')[:32]
 
+    # Download the encrypted data from GCS
+    bucket_name = GCS_BUCKET_NAME
+    blob_name = gcs_url.split('/')[-1]  # Assuming the URL is in the format of a GCS URL
+    bucket = GCS_CLIENT.bucket(bucket_name)
+    blob = bucket.blob(blob_name)
+    encrypted_data = blob.download_as_bytes()
+
+    # Decrypt the data
+    decrypted_data = decrypt_image(encrypted_data, key)
+
+    return send_file(io.BytesIO(decrypted_data), mimetype='image/png', as_attachment=True,
+                     download_name='decrypted_image.png')
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
